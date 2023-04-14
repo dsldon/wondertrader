@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13.5)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 project(trade_api_demo)
 
 message(STATUS "This is BINARY dir " ${PROJECT_BINARY_DIR})
