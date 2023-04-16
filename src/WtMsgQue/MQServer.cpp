@@ -4,8 +4,8 @@
  *
  * \author Wesley
  * \date 2020/03/30
- * 
- * \brief 
+ *
+ * \brief
  */
 #include "MQServer.h"
 #include "MQManager.h"
@@ -15,31 +15,24 @@
 #include <spdlog/fmt/fmt.h>
 #include <atomic>
 
-
 #ifndef NN_STATIC_LIB
 #define NN_STATIC_LIB
 #endif
-#include <nanomsg/nn.h>
-#include <nanomsg/pubsub.h>
-
+// #include <nanomsg/nn.h>
+// #include <nanomsg/pubsub.h>
+#include <nn.h>
+#include <pubsub.h>
 
 USING_NS_WTP;
 
-
 inline uint32_t makeMQSvrId()
 {
-	static std::atomic<uint32_t> _auto_server_id{ 1001 };
+	static std::atomic<uint32_t> _auto_server_id{1001};
 	return _auto_server_id.fetch_add(1);
 }
 
-
-MQServer::MQServer(MQManager* mgr)
-	: _sock(-1)
-	, _ready(false)
-	, _mgr(mgr)
-	, _confirm(false)
-	, m_bTerminated(false)
-	, m_bTimeout(false)
+MQServer::MQServer(MQManager *mgr)
+	: _sock(-1), _ready(false), _mgr(mgr), _confirm(false), m_bTerminated(false), m_bTimeout(false)
 {
 	_id = makeMQSvrId();
 }
@@ -54,11 +47,11 @@ MQServer::~MQServer()
 	if (m_thrdCast)
 		m_thrdCast->join();
 
-	//if (_sock >= 0)
+	// if (_sock >= 0)
 	//	nn_close(_sock);
 }
 
-bool MQServer::init(const char* url, bool confirm /* = false */)
+bool MQServer::init(const char *url, bool confirm /* = false */)
 {
 	if (_sock >= 0)
 		return true;
@@ -66,7 +59,7 @@ bool MQServer::init(const char* url, bool confirm /* = false */)
 	_confirm = confirm;
 
 	_sock = nn_socket(AF_SP, NN_PUB);
-	if(_sock < 0)
+	if (_sock < 0)
 	{
 		_mgr->log_server(_id, fmt::format("MQServer {} has an error {} while initializing", _id, _sock).c_str());
 		return false;
@@ -76,7 +69,7 @@ bool MQServer::init(const char* url, bool confirm /* = false */)
 	nn_setsockopt(_sock, NN_SOL_SOCKET, NN_SNDBUF, &bufsize, sizeof(bufsize));
 
 	_url = url;
-	if(nn_bind(_sock, url) < 0)
+	if (nn_bind(_sock, url) < 0)
 	{
 		_mgr->log_server(_id, fmt::format("MQServer {} has an error while binding url {}", _id, url).c_str());
 		return false;
@@ -92,15 +85,15 @@ bool MQServer::init(const char* url, bool confirm /* = false */)
 	return true;
 }
 
-void MQServer::publish(const char* topic, const void* data, uint32_t dataLen)
+void MQServer::publish(const char *topic, const void *data, uint32_t dataLen)
 {
-	if(_sock < 0)
+	if (_sock < 0)
 	{
 		_mgr->log_server(_id, fmt::format("MQServer {} has not been initialized yet", _id).c_str());
 		return;
 	}
 
-	if(data == NULL || dataLen == 0 || m_bTerminated)
+	if (data == NULL || dataLen == 0 || m_bTerminated)
 		return;
 
 	{
@@ -109,9 +102,10 @@ void MQServer::publish(const char* topic, const void* data, uint32_t dataLen)
 		m_bTimeout = false;
 	}
 
-	if(m_thrdCast == NULL)
+	if (m_thrdCast == NULL)
 	{
-		m_thrdCast.reset(new StdThread([this](){
+		m_thrdCast.reset(new StdThread([this]()
+									   {
 
 			if (m_sendBuf.empty())
 				m_sendBuf.resize(1024 * 1024, 0);
@@ -172,8 +166,7 @@ void MQServer::publish(const char* topic, const void* data, uint32_t dataLen)
 					}
 					tmpQue.pop();
 				} 
-			}
-		}));
+			} }));
 	}
 	else
 	{

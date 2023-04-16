@@ -17,31 +17,25 @@
 #ifndef NN_STATIC_LIB
 #define NN_STATIC_LIB
 #endif
-#include <nanomsg/nn.h>
-#include <nanomsg/pubsub.h>
-
+// #include <nanomsg/nn.h>
+// #include <nanomsg/pubsub.h>
+#include <nn.h>
+#include <pubsub.h>
 
 USING_NS_WTP;
 
-#pragma warning(disable:4200)
+#pragma warning(disable : 4200)
 
-#define  RECV_BUF_SIZE  1024*1024
+#define RECV_BUF_SIZE 1024 * 1024
 
 inline uint32_t makeMQCientId()
 {
-	static std::atomic<uint32_t> _auto_client_id{ 5001 };
+	static std::atomic<uint32_t> _auto_client_id{5001};
 	return _auto_client_id.fetch_add(1);
 }
 
-
-MQClient::MQClient(MQManager* mgr)
-	: _sock(-1)
-	, m_bReady(false)
-	, _mgr(mgr)
-	, m_bTerminated(false)
-	, _cb_message(NULL)
-	, m_iCheckTime(0)
-	, m_bNeedCheck(false)
+MQClient::MQClient(MQManager *mgr)
+	: _sock(-1), m_bReady(false), _mgr(mgr), m_bTerminated(false), _cb_message(NULL), m_iCheckTime(0), m_bNeedCheck(false)
 {
 	_id = makeMQCientId();
 }
@@ -59,7 +53,7 @@ MQClient::~MQClient()
 		nn_close(_sock);
 }
 
-bool MQClient::init(const char* url, FuncMQCallback cb)
+bool MQClient::init(const char *url, FuncMQCallback cb)
 {
 	if (_sock >= 0)
 		return true;
@@ -99,7 +93,7 @@ void MQClient::start()
 	if (m_bTerminated)
 		return;
 
-	if(_sock < 0)
+	if (_sock < 0)
 	{
 		_mgr->log_client(_id, fmtutil::format("MQClient {} has not been initialized yet", _id));
 		return;
@@ -107,7 +101,8 @@ void MQClient::start()
 
 	if (m_thrdRecv == NULL)
 	{
-		m_thrdRecv.reset(new StdThread([this]() {
+		m_thrdRecv.reset(new StdThread([this]()
+									   {
 
 			while (!m_bTerminated)
 			{
@@ -147,8 +142,7 @@ void MQClient::start()
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
 				
-			}
-		}));
+			} }));
 
 		_mgr->log_client(_id, fmtutil::format("MQClient {} has started successfully", _id));
 	}
@@ -156,24 +150,23 @@ void MQClient::start()
 	{
 		_mgr->log_client(_id, fmtutil::format("MQClient {} has already started", _id));
 	}
-	
 }
 
 void MQClient::extract_buffer()
 {
 	uint32_t proc_len = 0;
-	for(;;)
+	for (;;)
 	{
-		//先做长度检查
+		// 先做长度检查
 		if (_buffer.length() - proc_len < sizeof(MQPacket))
 			break;
 
-		MQPacket* packet = (MQPacket*)(_buffer.data() + proc_len);
+		MQPacket *packet = (MQPacket *)(_buffer.data() + proc_len);
 
 		if (_buffer.length() - proc_len < sizeof(MQPacket) + packet->_length)
 			break;
 
-		char* data = packet->_data;
+		char *data = packet->_data;
 
 		if (is_allowed(packet->_topic))
 			_cb_message(_id, packet->_topic, packet->_data, packet->_length);
@@ -181,6 +174,6 @@ void MQClient::extract_buffer()
 		proc_len += sizeof(MQPacket) + packet->_length;
 	}
 
-	if(proc_len > 0)
+	if (proc_len > 0)
 		_buffer.erase(0, proc_len);
 }

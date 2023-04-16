@@ -10,5 +10,4 @@ FetchContent_Declare(spdlog                             # 库名字
 )
 
 FetchContent_MakeAvailable(spdlog)
-target_include_directories(spdlog INTERFACE ${spdlog_SOURCE_DIR}/include)
 include_directories(${spdlog_SOURCE_DIR}/include)

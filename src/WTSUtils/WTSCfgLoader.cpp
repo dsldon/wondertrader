@@ -146,7 +146,7 @@ bool yaml_to_variant(const YAML::Node& root, WTSVariant* params)
 			WTSVariant* subObj = WTSVariant::createObject();
 			if (yaml_to_variant(item, subObj))
 			{
-				if(isMap)
+				if (isMap)
 					params->append(key.c_str(), subObj, false);
 				else
 					params->append(subObj, false);
@@ -236,7 +236,7 @@ WTSVariant* WTSCfgLoader::load_from_file(const char* filename)
 	//Linux下得是UTF8
 	//Win下得是GBK
 #ifdef _WIN32
-	if(isUTF8)
+	if (isUTF8)
 		content = UTF8toChar(content);
 #else
 	if (!isUTF8)

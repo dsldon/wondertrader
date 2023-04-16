@@ -10,3 +10,4 @@ FetchContent_Declare(nanomsg                             # 库名字
 )
 
 FetchContent_MakeAvailable(nanomsg)
+include_directories(${nanomsg_SOURCE_DIR}/src)

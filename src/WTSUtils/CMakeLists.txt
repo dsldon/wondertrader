@@ -26,7 +26,7 @@ ELSE (GNUCC)
 LIST(APPEND SRCS "./StackTracer/StackTracer.cpp")
 ENDIF()
 
-INCLUDE_DIRECTORIES(${INCS})
+# INCLUDE_DIRECTORIES(${INCS})
 
 #8. 编译成动态库，并生成库文件
 add_library(WTSUtils STATIC ${SRCS} ${HDRS})
