@@ -70,11 +70,12 @@ ENDIF()
 
 #basic libraries
 ADD_SUBDIRECTORY(WTSUtils)
-## ADD_SUBDIRECTORY(WTSTools)
+ADD_SUBDIRECTORY(WTSTools)
 
-if(0)
 #contract Loade through ctp channel
 ADD_SUBDIRECTORY(CTPLoader)
+
+if(0)
 ADD_SUBDIRECTORY(CTPOptLoader)
 ADD_SUBDIRECTORY(MiniLoader)
 ADD_SUBDIRECTORY(LoaderRunner)

@@ -3,7 +3,7 @@
 #ifndef FMT_HEADER_ONLY
 #define FMT_HEADER_ONLY
 #endif
-#include <spdlog/fmt/bundled/format.h>
+#include <fmt/format.h>
 
 namespace fmtutil
 {
@@ -15,7 +15,7 @@ namespace fmtutil
 		return s;
 	}
 
-	template<int BUFSIZE=512, typename... Args>
+	template<int BUFSIZE = 512, typename... Args>
 	inline const char* format(const char* format, const Args& ...args)
 	{
 		thread_local static char buffer[BUFSIZE];
