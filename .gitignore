@@ -1,1 +1,4 @@
 dist/*
+.vs
+.vscode
+.history
