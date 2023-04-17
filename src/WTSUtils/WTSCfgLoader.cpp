@@ -19,7 +19,7 @@ bool json_to_variant(const rj::Value& root, WTSVariant* params)
 
 	if (root.IsObject())
 	{
-		for (auto& m : root.GetObject())
+		for (auto& m : root.GetObj())
 		{
 			const char* key = m.name.GetString();
 			const rj::Value& item = m.value;
