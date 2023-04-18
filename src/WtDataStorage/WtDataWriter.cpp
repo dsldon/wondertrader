@@ -40,7 +40,7 @@ extern "C"
 		return ret;
 	}
 
-	EXPORT_FLAG void deleteWriter(IDataWriter* &writer)
+	EXPORT_FLAG void deleteWriter(IDataWriter*& writer)
 	{
 		if (writer != NULL)
 		{
@@ -142,8 +142,8 @@ bool WtDataWriter::init(WTSVariant* params, IDataWriterSink* sink)
 	_proc_chk.reset(new StdThread(boost::bind(&WtDataWriter::check_loop, this)));
 
 	pipe_writer_log(sink, LL_INFO, "WtDataWriter initialized, root dir: {}, save_csv_tick: {}, async_mode: {}, log_group_size: {}, disable_history: {}, "
-		"disable_tick: {}, disable_min1: {}, disable_min5: {}, disable_day: {}, disable_trans: {}, disable_ordque: {}, disable_orders: {}", 
-		_base_dir, _save_tick_log, _async_proc, _log_group_size, _disable_his, _disable_tick, 
+		"disable_tick: {}, disable_min1: {}, disable_min5: {}, disable_day: {}, disable_trans: {}, disable_ordque: {}, disable_orders: {}",
+		_base_dir, _save_tick_log, _async_proc, _log_group_size, _disable_his, _disable_tick,
 		_disable_min1, _disable_min5, _disable_day, _disable_trans, _disable_ordque, _disable_orddtl);
 	return true;
 }
@@ -157,7 +157,7 @@ void WtDataWriter::release()
 		_proc_thrd->join();
 	}
 
-	for(auto& v : _rt_ticks_blocks)
+	for (auto& v : _rt_ticks_blocks)
 	{
 		delete v.second;
 	}
@@ -212,7 +212,7 @@ void DataManager::preloadRtCaches(const char* exchg)
 
 			bool isStk = (commInfo->getCategoty() == CC_Stock);
 			codecnt++;
-			
+
 			releaseBlock(getTickBlock(ct->getCode(), TimeUtils::getCurDate(), true));
 			releaseBlock(getKlineBlock(ct->getCode(), KP_Minute1, true));
 			releaseBlock(getKlineBlock(ct->getCode(), KP_Minute5, true));
@@ -261,7 +261,7 @@ void WtDataWriter::loadCache()
 
 	_tick_cache_block->_size = min(_tick_cache_block->_size, _tick_cache_block->_capacity);
 
-	if(bNew)
+	if (bNew)
 	{
 		memset(_tick_cache_block, 0, _tick_cache_file->size());
 
@@ -294,8 +294,8 @@ void* WtDataWriter::resizeRTBlock(BoostMFPtr& mfPtr, uint32_t nCount)
 		return mfPtr->addr();
 
 	std::string filename = mfPtr->filename();
-	uint64_t uOldSize = sizeof(HeaderType) + sizeof(T)*tBlock->_capacity;
-	uint64_t uNewSize = sizeof(HeaderType) + sizeof(T)*nCount;
+	uint64_t uOldSize = sizeof(HeaderType) + sizeof(T) * tBlock->_capacity;
+	uint64_t uNewSize = sizeof(HeaderType) + sizeof(T) * nCount;
 	std::string data;
 	data.resize((std::size_t)(uNewSize - uOldSize), 0);
 	try
@@ -306,7 +306,7 @@ void* WtDataWriter::resizeRTBlock(BoostMFPtr& mfPtr, uint32_t nCount)
 		f.write_file(data.c_str(), data.size());
 		f.close_file();
 	}
-	catch(std::exception& ex)
+	catch (std::exception& ex)
 	{
 		pipe_writer_log(_sink, LL_ERROR, "Exception occured while expanding RT cache file {} to {}: {}", filename, uNewSize, ex.what());
 		return NULL;
@@ -327,7 +327,7 @@ void* WtDataWriter::resizeRTBlock(BoostMFPtr& mfPtr, uint32_t nCount)
 	{
 		pipe_writer_log(_sink, LL_ERROR, "Exception occured while mapping RT cache file {}: {}", filename, ex.what());
 		return NULL;
-	}	
+	}
 
 	mfPtr.reset(pNewMf);
 
@@ -342,12 +342,12 @@ bool WtDataWriter::writeTick(WTSTickData* curTick, uint32_t procFlag)
 		return false;
 
 	curTick->retain();
-	pushTask([this, curTick, procFlag](){
+	pushTask([this, curTick, procFlag]() {
 
 		do
 		{
 			WTSContractInfo* ct = curTick->getContractInfo();
-			if(ct == NULL)
+			if (ct == NULL)
 				break;
 
 			WTSCommodityInfo* commInfo = ct->getCommInfo();
@@ -361,7 +361,7 @@ bool WtDataWriter::writeTick(WTSTickData* curTick, uint32_t procFlag)
 				break;
 
 			//写到tick缓存
-			if(!_disable_tick)
+			if (!_disable_tick)
 				pipeToTicks(ct, curTick);
 
 			//写到K线缓存
@@ -378,7 +378,7 @@ bool WtDataWriter::writeTick(WTSTickData* curTick, uint32_t procFlag)
 		} while (false);
 
 		curTick->release();
-	});
+		});
 	return true;
 }
 
@@ -388,7 +388,7 @@ bool WtDataWriter::writeOrderQueue(WTSOrdQueData* curOrdQue)
 		return false;
 
 	curOrdQue->retain();
-	pushTask([this, curOrdQue](){
+	pushTask([this, curOrdQue]() {
 
 		do
 		{
@@ -431,13 +431,13 @@ bool WtDataWriter::writeOrderQueue(WTSOrdQueData* curOrdQue)
 			}
 		} while (false);
 		curOrdQue->release();
-	});
+		});
 	return true;
 }
 
 void WtDataWriter::pushTask(TaskInfo task)
 {
-	if(_async_proc)
+	if (_async_proc)
 	{
 		StdUniqueLock lck(_task_mtx);
 		_tasks.push(task);
@@ -449,12 +449,12 @@ void WtDataWriter::pushTask(TaskInfo task)
 		return;
 	}
 
-	if(_task_thrd == NULL)
+	if (_task_thrd == NULL)
 	{
-		_task_thrd.reset(new StdThread([this](){
+		_task_thrd.reset(new StdThread([this]() {
 			while (!_terminated)
 			{
-				if(_tasks.empty())
+				if (_tasks.empty())
 				{
 					StdUniqueLock lck(_task_mtx);
 					_task_cond.wait(_task_mtx);
@@ -467,14 +467,14 @@ void WtDataWriter::pushTask(TaskInfo task)
 					tempQueue.swap(_tasks);
 				}
 
-				while(!tempQueue.empty())
+				while (!tempQueue.empty())
 				{
 					TaskInfo& curTask = tempQueue.front();
 					curTask();
 					tempQueue.pop();
 				}
 			}
-		}));
+			}));
 	}
 }
 
@@ -484,7 +484,7 @@ bool WtDataWriter::writeOrderDetail(WTSOrdDtlData* curOrdDtl)
 		return false;
 
 	curOrdDtl->retain();
-	pushTask([this, curOrdDtl](){
+	pushTask([this, curOrdDtl]() {
 
 		do
 		{
@@ -529,8 +529,8 @@ bool WtDataWriter::writeOrderDetail(WTSOrdDtlData* curOrdDtl)
 		} while (false);
 
 		curOrdDtl->release();
-	});
-	
+		});
+
 	return true;
 }
 
@@ -540,7 +540,7 @@ bool WtDataWriter::writeTransaction(WTSTransData* curTrans)
 		return false;
 
 	curTrans->retain();
-	pushTask([this, curTrans](){
+	pushTask([this, curTrans]() {
 
 		do
 		{
@@ -585,7 +585,7 @@ bool WtDataWriter::writeTransaction(WTSTransData* curTrans)
 		} while (false);
 
 		curTrans->release();
-	});
+		});
 	return true;
 }
 
@@ -599,14 +599,14 @@ void WtDataWriter::pipeToTicks(WTSContractInfo* ct, WTSTickData* curTick)
 
 	//先检查容量够不够,不够要扩
 	RTTickBlock* blk = pBlockPair->_block;
-	if(blk && blk->_size >= blk->_capacity)
+	if (blk && blk->_size >= blk->_capacity)
 	{
 		pBlockPair->_file->sync();
 		pBlockPair->_block = (RTTickBlock*)resizeRTBlock<RTDayBlockHeader, WTSTickStruct>(pBlockPair->_file, blk->_capacity + TICK_SIZE_STEP);
 		blk = pBlockPair->_block;
-		if(blk) pipe_writer_log(_sink, LL_DEBUG, "RT tick block of {} resized to {}", ct->getFullCode(), blk->_capacity);
+		if (blk) pipe_writer_log(_sink, LL_DEBUG, "RT tick block of {} resized to {}", ct->getFullCode(), blk->_capacity);
 	}
-	
+
 	if (blk == NULL)
 	{
 		pipe_writer_log(_sink, LL_DEBUG, "RT tick block of {} is not valid", ct->getFullCode());
@@ -616,7 +616,7 @@ void WtDataWriter::pipeToTicks(WTSContractInfo* ct, WTSTickData* curTick)
 	memcpy(&blk->_ticks[blk->_size], &curTick->getTickStruct(), sizeof(WTSTickStruct));
 	blk->_size += 1;
 
-	if(_save_tick_log && pBlockPair->_fstream)
+	if (_save_tick_log && pBlockPair->_fstream)
 	{
 		*(pBlockPair->_fstream) << curTick->code() << ","
 			<< curTick->tradingdate() << ","
@@ -641,7 +641,7 @@ WtDataWriter::OrdQueBlockPair* WtDataWriter::getOrdQueBlock(WTSContractInfo* ct,
 	OrdQueBlockPair* pBlock = NULL;
 	const char* key = ct->getFullCode();
 	pBlock = _rt_ordque_blocks[key];
-	if(pBlock == NULL)
+	if (pBlock == NULL)
 	{
 		pBlock = new OrdQueBlockPair();
 		_rt_ordque_blocks[key] = pBlock;
@@ -682,13 +682,13 @@ WtDataWriter::OrdQueBlockPair* WtDataWriter::getOrdQueBlock(WTSContractInfo* ct,
 		}
 		pBlock->_block = (RTOrdQueBlock*)pBlock->_file->addr();
 
-		if (!isNew &&  pBlock->_block->_date != curDate)
+		if (!isNew && pBlock->_block->_date != curDate)
 		{
 			pipe_writer_log(_sink, LL_INFO, "date[{}] of orderqueue cache block[{}] is different from current date[{}], reinitializing...", pBlock->_block->_date, path.c_str(), curDate);
 			pBlock->_block->_size = 0;
 			pBlock->_block->_date = curDate;
 
-			memset(&pBlock->_block->_queues, 0, sizeof(WTSOrdQueStruct)*pBlock->_block->_capacity);
+			memset(&pBlock->_block->_queues, 0, sizeof(WTSOrdQueStruct) * pBlock->_block->_capacity);
 		}
 
 		if (isNew)
@@ -744,7 +744,7 @@ WtDataWriter::OrdDtlBlockPair* WtDataWriter::getOrdDtlBlock(WTSContractInfo* ct,
 	if (pBlock->_block == NULL)
 	{
 		std::string path = fmt::format("{}rt/orders/{}/", _base_dir.c_str(), ct->getExchg());
-		if(bAutoCreate)
+		if (bAutoCreate)
 			BoostFile::create_directories(path.c_str());
 		path += ct->getCode();
 		path += ".dmb";
@@ -776,13 +776,13 @@ WtDataWriter::OrdDtlBlockPair* WtDataWriter::getOrdDtlBlock(WTSContractInfo* ct,
 		}
 		pBlock->_block = (RTOrdDtlBlock*)pBlock->_file->addr();
 
-		if (!isNew &&  pBlock->_block->_date != curDate)
+		if (!isNew && pBlock->_block->_date != curDate)
 		{
 			pipe_writer_log(_sink, LL_INFO, "date[{}] of orderdetail cache block[{}] is different from current date[{}], reinitializing...", pBlock->_block->_date, path.c_str(), curDate);
 			pBlock->_block->_size = 0;
 			pBlock->_block->_date = curDate;
 
-			memset(&pBlock->_block->_details, 0, sizeof(WTSOrdDtlStruct)*pBlock->_block->_capacity);
+			memset(&pBlock->_block->_details, 0, sizeof(WTSOrdDtlStruct) * pBlock->_block->_capacity);
 		}
 
 		if (isNew)
@@ -871,13 +871,13 @@ WtDataWriter::TransBlockPair* WtDataWriter::getTransBlock(WTSContractInfo* ct, u
 		}
 		pBlock->_block = (RTTransBlock*)pBlock->_file->addr();
 
-		if (!isNew &&  pBlock->_block->_date != curDate)
+		if (!isNew && pBlock->_block->_date != curDate)
 		{
 			pipe_writer_log(_sink, LL_INFO, "date[{}] of transaction cache block[{}] is different from current date[{}], reinitializing...", pBlock->_block->_date, path.c_str(), curDate);
 			pBlock->_block->_size = 0;
 			pBlock->_block->_date = curDate;
 
-			memset(&pBlock->_block->_trans, 0, sizeof(WTSTransStruct)*pBlock->_block->_capacity);
+			memset(&pBlock->_block->_trans, 0, sizeof(WTSTransStruct) * pBlock->_block->_capacity);
 		}
 
 		if (isNew)
@@ -931,13 +931,13 @@ WtDataWriter::TickBlockPair* WtDataWriter::getTickBlock(WTSContractInfo* ct, uin
 		_rt_ticks_blocks[key] = pBlock;
 	}
 
-	if(pBlock->_block == NULL)
+	if (pBlock->_block == NULL)
 	{
 		std::string path = fmt::format("{}rt/ticks/{}/", _base_dir.c_str(), ct->getExchg());
 		if (bAutoCreate)
 			BoostFile::create_directories(path.c_str());
 
-		if(_save_tick_log)
+		if (_save_tick_log)
 		{
 			std::stringstream fname;
 			fname << path << ct->getCode() << "." << curDate << ".csv";
@@ -966,7 +966,7 @@ WtDataWriter::TickBlockPair* WtDataWriter::getTickBlock(WTSContractInfo* ct, uin
 		}
 
 		pBlock->_file.reset(new BoostMappingFile);
-		if(!pBlock->_file->map(path.c_str()))
+		if (!pBlock->_file->map(path.c_str()))
 		{
 			pipe_writer_log(_sink, LL_ERROR, "Mapping file {} failed", path.c_str());
 			pBlock->_file.reset();
@@ -974,16 +974,16 @@ WtDataWriter::TickBlockPair* WtDataWriter::getTickBlock(WTSContractInfo* ct, uin
 		}
 		pBlock->_block = (RTTickBlock*)pBlock->_file->addr();
 
-		if (!isNew &&  pBlock->_block->_date != curDate)
+		if (!isNew && pBlock->_block->_date != curDate)
 		{
 			pipe_writer_log(_sink, LL_INFO, "date[{}] of tick cache block[{}] is different from current date[{}], reinitializing...", pBlock->_block->_date, path.c_str(), curDate);
 			pBlock->_block->_size = 0;
 			pBlock->_block->_date = curDate;
 
-			memset(&pBlock->_block->_ticks, 0, sizeof(WTSTickStruct)*pBlock->_block->_capacity);
+			memset(&pBlock->_block->_ticks, 0, sizeof(WTSTickStruct) * pBlock->_block->_capacity);
 		}
 
-		if(isNew)
+		if (isNew)
 		{
 			pBlock->_block->_capacity = TICK_SIZE_STEP;
 			pBlock->_block->_size = 0;
@@ -1009,11 +1009,11 @@ WtDataWriter::TickBlockPair* WtDataWriter::getTickBlock(WTSContractInfo* ct, uin
 					//文件大小不匹配,一般是因为capacity改了,但是实际没扩容
 					//这是做一次扩容即可
 					pBlock->_block->_capacity = realCap;
-					pBlock->_block->_size = min(realCap,markedCap);
+					pBlock->_block->_size = min(realCap, markedCap);
 				}
-				
+
 			} while (false);
-			
+
 		}
 	}
 
@@ -1025,7 +1025,7 @@ void WtDataWriter::pipeToKlines(WTSContractInfo* ct, WTSTickData* curTick)
 {
 	bool tickNoTrade = curTick->turnover() <= 0.1;
 	// 如果未成交的bar也要跳过，那么就不需要处理所有未成交的tick了，否则即便没有成交也要放进来闭合bar
-	if (_skip_notrade_bar and tickNoTrade)
+	if (_skip_notrade_bar && tickNoTrade)
 	{
 		return;
 	}
@@ -1103,7 +1103,7 @@ void WtDataWriter::pipeToKlines(WTSContractInfo* ct, WTSTickData* curTick)
 				newBar->hold = curTick->openinterest();
 				newBar->add = curTick->additional();
 			}
-			else if (not (_skip_notrade_tick && tickNoTrade))
+			else if (!(_skip_notrade_tick && tickNoTrade))
 			{
 				newBar = &blk->_bars[blk->_size - 1];
 
@@ -1173,7 +1173,7 @@ void WtDataWriter::pipeToKlines(WTSContractInfo* ct, WTSTickData* curTick)
 				newBar->hold = curTick->openinterest();
 				newBar->add = curTick->additional();
 			}
-			else if (not (_skip_notrade_tick && tickNoTrade))
+			else if (!(_skip_notrade_tick && tickNoTrade))
 			{
 				newBar = &blk->_bars[blk->_size - 1];
 
@@ -1213,14 +1213,14 @@ WtDataWriter::KBlockPair* WtDataWriter::getKlineBlock(WTSContractInfo* ct, WTSKl
 	KBlockFilesMap* cache_map = NULL;
 	std::string subdir = "";
 	BlockType bType;
-	switch(period)
+	switch (period)
 	{
-	case KP_Minute1: 
-		cache_map = &_rt_min1_blocks; 
+	case KP_Minute1:
+		cache_map = &_rt_min1_blocks;
 		subdir = "min1";
 		bType = BT_RT_Minute1;
 		break;
-	case KP_Minute5: 
+	case KP_Minute5:
 		cache_map = &_rt_min5_blocks;
 		subdir = "min5";
 		bType = BT_RT_Minute5;
@@ -1242,7 +1242,7 @@ WtDataWriter::KBlockPair* WtDataWriter::getKlineBlock(WTSContractInfo* ct, WTSKl
 	{
 		//std::string path = StrUtil::printf("%srt/%s/%s/", _base_dir.c_str(), subdir.c_str(), ct->getExchg());
 		thread_local static char path[256] = { 0 };
-		char * s = fmt::format_to(path, "{}rt/{}/{}/", _base_dir, subdir, ct->getExchg());
+		char* s = fmt::format_to(path, "{}rt/{}/{}/", _base_dir, subdir, ct->getExchg());
 		s[0] = '\0';
 		if (bAutoCreate)
 			BoostFile::create_directories(path);
@@ -1271,7 +1271,7 @@ WtDataWriter::KBlockPair* WtDataWriter::getKlineBlock(WTSContractInfo* ct, WTSKl
 		}
 
 		pBlock->_file.reset(new BoostMappingFile);
-		if(pBlock->_file->map(path))
+		if (pBlock->_file->map(path))
 		{
 			pBlock->_block = (RTKlineBlock*)pBlock->_file->addr();
 		}
@@ -1343,7 +1343,7 @@ bool WtDataWriter::updateCache(WTSContractInfo* ct, WTSTickData* curTick, uint32
 		idx = _tick_cache_block->_size;
 		_tick_cache_idx[key] = _tick_cache_block->_size;
 		_tick_cache_block->_size += 1;
-		if(_tick_cache_block->_size >= _tick_cache_block->_capacity)
+		if (_tick_cache_block->_size >= _tick_cache_block->_capacity)
 		{
 			_tick_cache_block = (RTTickCache*)resizeRTBlock<RTTickCache, TickCacheItem>(_tick_cache_file, _tick_cache_block->_capacity + CACHE_SIZE_STEP);
 			pipe_writer_log(_sink, LL_INFO, "Tick Cache resized to {} items", _tick_cache_block->_capacity);
@@ -1369,7 +1369,7 @@ bool WtDataWriter::updateCache(WTSContractInfo* ct, WTSTickData* curTick, uint32
 		//新数据交易日大于老数据,则认为是新一天的数据
 		item._date = curTick->tradingdate();
 		memcpy(&item._tick, &newTick, sizeof(WTSTickStruct));
-		if (procFlag==1)
+		if (procFlag == 1)
 		{
 			item._tick.volume = item._tick.total_volume;
 			item._tick.turn_over = item._tick.total_turnover;
@@ -1382,7 +1382,7 @@ bool WtDataWriter::updateCache(WTSContractInfo* ct, WTSTickData* curTick, uint32
 
 		//	newTick.trading_date, curTick->exchg(), curTick->code(), curTick->volume(),
 		//	curTick->turnover(), curTick->openinterest(), curTick->additional());
-		pipe_writer_log(_sink, LL_INFO, "First tick of new tradingday {},{}.{},{},{},{},{},{}", 
+		pipe_writer_log(_sink, LL_INFO, "First tick of new tradingday {},{}.{},{},{},{},{},{}",
 			newTick.trading_date, curTick->exchg(), curTick->code(), curTick->price(), curTick->volume(),
 			curTick->turnover(), curTick->openinterest(), curTick->additional());
 	}
@@ -1408,13 +1408,13 @@ bool WtDataWriter::updateCache(WTSContractInfo* ct, WTSTickData* curTick, uint32
 		//By Wesley @ 2021.12.21
 		//今天发现居然一秒出现了4笔，实在是有点无语
 		//只能把500毫秒的变化量改成200，并且改成发生时间小于等于上一笔的判断
-		if(newTick.action_date == item._tick.action_date && newTick.action_time <= item._tick.action_time && newTick.total_volume >= item._tick.total_volume)
+		if (newTick.action_date == item._tick.action_date && newTick.action_time <= item._tick.action_time && newTick.total_volume >= item._tick.total_volume)
 		{
 			newTick.action_time += 200;
 		}
 
 		//这里就要看需不需要预处理了
-		if(procFlag == 0)
+		if (procFlag == 0)
 		{
 			memcpy(&item._tick, &newTick, sizeof(WTSTickStruct));
 		}
@@ -1458,7 +1458,7 @@ void WtDataWriter::transHisData(const char* sid)
 			for (auto code : codes)
 			{
 				WTSContractInfo* ct = _bd_mgr->getContract(code.c_str(), exchg);
-				if(ct)
+				if (ct)
 					_proc_que.push(ct->getFullCode());
 			}
 		}
@@ -1483,14 +1483,14 @@ void WtDataWriter::transHisData(const char* sid)
 void WtDataWriter::check_loop()
 {
 	uint32_t expire_secs = 600;
-	while(!_terminated)
+	while (!_terminated)
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(10));
 		/*
 		 *	By Wesley @ 2022.04.18
 		 *	如果收盘作业线程已经启动，则直接退出检查线程
 		 */
-		if(_proc_thrd != NULL)
+		if (_proc_thrd != NULL)
 			break;
 
 		uint64_t now = TimeUtils::getLocalTimeNow() / 1000;
@@ -1591,11 +1591,11 @@ uint32_t WtDataWriter::dump_bars_via_dumper(WTSContractInfo* ct)
 		bsDay.hold = ts.open_interest;
 		bsDay.add = ts.diff_interest;
 
-		for(auto& item : _dumpers)
+		for (auto& item : _dumpers)
 		{
 			const char* id = item.first.c_str();
 			IHisDataDumper* dumper = item.second;
-			if(dumper == NULL)
+			if (dumper == NULL)
 				continue;
 
 			bool bSucc = dumper->dumpHisBars(key.c_str(), "d1", &bsDay, 1);
@@ -1734,7 +1734,7 @@ bool WtDataWriter::proc_block_data(const char* tag, std::string& content, bool i
 		{
 			uint32_t tick_cnt = buffer.size() / sizeof(WTSTickStructOld);
 			std::string bufv2;
-			bufv2.resize(sizeof(WTSTickStruct)*tick_cnt);
+			bufv2.resize(sizeof(WTSTickStruct) * tick_cnt);
 			WTSTickStruct* newTick = (WTSTickStruct*)bufv2.data();
 			WTSTickStructOld* oldTick = (WTSTickStructOld*)buffer.data();
 			for (uint32_t i = 0; i < tick_cnt; i++)
@@ -1799,7 +1799,7 @@ bool WtDataWriter::dump_day_data(WTSContractInfo* ct, WTSBarStruct* newBar)
 
 			//先统一解压出来
 			proc_block_data(filename.c_str(), content, true, false);
-			
+
 			uint32_t barcnt = content.size() / sizeof(WTSBarStruct);
 			//开始比较K线时间标签,主要为了防止数据重复写
 			if (barcnt != 0)
@@ -1934,7 +1934,7 @@ uint32_t WtDataWriter::dump_bars_to_file(WTSContractInfo* ct)
 				}
 
 				//追加新的数据
-				buffer.append((const char*)kBlkPair->_block->_bars, sizeof(WTSBarStruct)*size);
+				buffer.append((const char*)kBlkPair->_block->_bars, sizeof(WTSBarStruct) * size);
 
 				std::string cmpData = WTSCmpHelper::compress_data(buffer.data(), buffer.size());
 
@@ -2000,7 +2000,7 @@ uint32_t WtDataWriter::dump_bars_to_file(WTSContractInfo* ct)
 					buffer.swap(content);
 				}
 
-				buffer.append((const char*)kBlkPair->_block->_bars, sizeof(WTSBarStruct)*size);
+				buffer.append((const char*)kBlkPair->_block->_bars, sizeof(WTSBarStruct) * size);
 
 				std::string cmpData = WTSCmpHelper::compress_data(buffer.data(), buffer.size());
 
@@ -2036,7 +2036,7 @@ void WtDataWriter::proc_loop()
 {
 	while (!_terminated)
 	{
-		if(_proc_que.empty())
+		if (_proc_que.empty())
 		{
 			StdUniqueLock lock(_proc_mtx);
 			_proc_cond.wait(_proc_mtx);
@@ -2050,7 +2050,7 @@ void WtDataWriter::proc_loop()
 			fullcode = _proc_que.front().c_str();
 			_proc_que.pop();
 		}
-		catch(std::exception& e)
+		catch (std::exception& e)
 		{
 			pipe_writer_log(_sink, LL_ERROR, e.what());
 			continue;
@@ -2105,7 +2105,7 @@ void WtDataWriter::proc_loop()
 			}
 
 			//如果两组代码个数不同,说明有代码过期了,被排除了
-			if(setCodes.size() != _tick_cache_idx.size())
+			if (setCodes.size() != _tick_cache_idx.size())
 			{
 				uint32_t diff = _tick_cache_idx.size() - setCodes.size();
 
@@ -2113,12 +2113,12 @@ void WtDataWriter::proc_loop()
 				if (setCodes.size() % CACHE_SIZE_STEP != 0)
 					scale++;
 
-				uint32_t size = sizeof(RTTickCache) + sizeof(TickCacheItem)*scale*CACHE_SIZE_STEP;
+				uint32_t size = sizeof(RTTickCache) + sizeof(TickCacheItem) * scale * CACHE_SIZE_STEP;
 				std::string buffer;
 				buffer.resize(size, 0);
 
 				RTTickCache* newCache = (RTTickCache*)buffer.data();
-				newCache->_capacity = scale*CACHE_SIZE_STEP;
+				newCache->_capacity = scale * CACHE_SIZE_STEP;
 				newCache->_type = BT_RT_Cache;
 				newCache->_size = setCodes.size();
 				newCache->_version = BLOCK_VERSION_RAW_V2;
@@ -2152,7 +2152,7 @@ void WtDataWriter::proc_loop()
 
 				_tick_cache_file->map(filename.c_str());
 				_tick_cache_block = (RTTickCache*)_tick_cache_file->addr();
-				
+
 				pipe_writer_log(_sink, LL_INFO, "{} expired cache cleared totally", diff);
 			}
 
@@ -2175,7 +2175,7 @@ void WtDataWriter::proc_loop()
 			int try_count = 0;
 			do
 			{
-				if(try_count >= 5)
+				if (try_count >= 5)
 				{
 					pipe_writer_log(_sink, LL_ERROR, "Too many trys to clear rt cache files，skip");
 					break;
@@ -2237,7 +2237,7 @@ void WtDataWriter::proc_loop()
 			//转移实时tick数据
 			if (!_disable_tick)
 			{
-				TickBlockPair *tBlkPair = getTickBlock(ct, uDate, false);
+				TickBlockPair* tBlkPair = getTickBlock(ct, uDate, false);
 				if (tBlkPair != NULL)
 				{
 					if (tBlkPair->_fstream)
@@ -2277,7 +2277,7 @@ void WtDataWriter::proc_loop()
 							if (f.create_new_file(filename.c_str()))
 							{
 								//先压缩数据
-								std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_ticks, sizeof(WTSTickStruct)*tBlkPair->_block->_size);
+								std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_ticks, sizeof(WTSTickStruct) * tBlkPair->_block->_size);
 
 								BlockHeaderV2 header;
 								strcpy(header._blk_flag, BLK_FLAG);
@@ -2310,7 +2310,7 @@ void WtDataWriter::proc_loop()
 			//转移实时trans数据
 			if (!_disable_trans)
 			{
-				TransBlockPair *tBlkPair = getTransBlock(ct, uDate, false);
+				TransBlockPair* tBlkPair = getTransBlock(ct, uDate, false);
 				if (tBlkPair != NULL && tBlkPair->_block->_size > 0)
 				{
 					pipe_writer_log(_sink, LL_INFO, "Transfering transaction data of {}...", fullcode.c_str());
@@ -2344,7 +2344,7 @@ void WtDataWriter::proc_loop()
 						if (f.create_new_file(filename.c_str()))
 						{
 							//先压缩数据
-							std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_trans, sizeof(WTSTransStruct)*tBlkPair->_block->_size);
+							std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_trans, sizeof(WTSTransStruct) * tBlkPair->_block->_size);
 
 							BlockHeaderV2 header;
 							strcpy(header._blk_flag, BLK_FLAG);
@@ -2376,7 +2376,7 @@ void WtDataWriter::proc_loop()
 			//转移实时order数据
 			if (!_disable_orddtl)
 			{
-				OrdDtlBlockPair *tBlkPair = getOrdDtlBlock(ct, uDate, false);
+				OrdDtlBlockPair* tBlkPair = getOrdDtlBlock(ct, uDate, false);
 				if (tBlkPair != NULL && tBlkPair->_block->_size > 0)
 				{
 					pipe_writer_log(_sink, LL_INFO, "Transfering order detail data of {}...", fullcode.c_str());
@@ -2410,7 +2410,7 @@ void WtDataWriter::proc_loop()
 						if (f.create_new_file(filename.c_str()))
 						{
 							//先压缩数据
-							std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_details, sizeof(WTSOrdDtlStruct)*tBlkPair->_block->_size);
+							std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_details, sizeof(WTSOrdDtlStruct) * tBlkPair->_block->_size);
 
 							BlockHeaderV2 header;
 							strcpy(header._blk_flag, BLK_FLAG);
@@ -2442,7 +2442,7 @@ void WtDataWriter::proc_loop()
 			//转移实时queue数据
 			if (!_disable_ordque)
 			{
-				OrdQueBlockPair *tBlkPair = getOrdQueBlock(ct, uDate, false);
+				OrdQueBlockPair* tBlkPair = getOrdQueBlock(ct, uDate, false);
 				if (tBlkPair != NULL && tBlkPair->_block->_size > 0)
 				{
 					pipe_writer_log(_sink, LL_INFO, "Transfering order queue data of {}...", fullcode.c_str());
@@ -2476,7 +2476,7 @@ void WtDataWriter::proc_loop()
 						if (f.create_new_file(filename.c_str()))
 						{
 							//先压缩数据
-							std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_queues, sizeof(WTSOrdQueStruct)*tBlkPair->_block->_size);
+							std::string cmp_data = WTSCmpHelper::compress_data(tBlkPair->_block->_queues, sizeof(WTSOrdQueStruct) * tBlkPair->_block->_size);
 
 							BlockHeaderV2 header;
 							strcpy(header._blk_flag, BLK_FLAG);

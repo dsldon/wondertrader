@@ -20,7 +20,10 @@ LINK_DIRECTORIES(${LNKS})
 SET(LIBS
 	WTSTools
 	WTSUtils
-	WtDtCore)
+	WtDtCore
+	Boost::filesystem
+	Boost::thread
+)
 
 IF(MSVC)
 	LIST(APPEND LIBS ws2_32)

@@ -4,8 +4,8 @@
  *
  * \author Wesley
  * \date 2020/03/30
- * 
- * \brief 
+ *
+ * \brief
  */
 #include "CtaMocker.h"
 #include "WtHelper.h"
@@ -13,6 +13,7 @@
 
 #include <exception>
 #include <boost/filesystem.hpp>
+#include <fstream>
 
 #include "../Includes/WTSContractInfo.hpp"
 #include "../Includes/WTSSessionInfo.hpp"
@@ -88,7 +89,7 @@ void CtaMocker::dump_stradata()
 	{//持仓数据保存
 		rj::Value jPos(rj::kArrayType);
 
-		rj::Document::AllocatorType &allocator = root.GetAllocator();
+		rj::Document::AllocatorType& allocator = root.GetAllocator();
 
 		for (auto it = _pos_map.begin(); it != _pos_map.end(); it++)
 		{
@@ -134,7 +135,7 @@ void CtaMocker::dump_stradata()
 
 	{//资金保存
 		rj::Value jFund(rj::kObjectType);
-		rj::Document::AllocatorType &allocator = root.GetAllocator();
+		rj::Document::AllocatorType& allocator = root.GetAllocator();
 
 		jFund.AddMember("total_profit", _fund_info._total_profit, allocator);
 		jFund.AddMember("total_dynprofit", _fund_info._total_dynprofit, allocator);
@@ -146,7 +147,7 @@ void CtaMocker::dump_stradata()
 
 	{//信号保存
 		rj::Value jSigs(rj::kObjectType);
-		rj::Document::AllocatorType &allocator = root.GetAllocator();
+		rj::Document::AllocatorType& allocator = root.GetAllocator();
 
 		for (auto& m : _sig_map)
 		{
@@ -170,7 +171,7 @@ void CtaMocker::dump_stradata()
 		rj::Value jCond(rj::kObjectType);
 		rj::Value jItems(rj::kObjectType);
 
-		rj::Document::AllocatorType &allocator = root.GetAllocator();
+		rj::Document::AllocatorType& allocator = root.GetAllocator();
 
 		for (auto it = _condtions.begin(); it != _condtions.end(); it++)
 		{
@@ -201,7 +202,7 @@ void CtaMocker::dump_stradata()
 		root.AddMember("conditions", jCond, allocator);
 	}
 
-	if(_persist_data)
+	if (_persist_data)
 	{
 		std::string folder = WtHelper::getOutputDir();
 		folder += _name;
@@ -224,10 +225,10 @@ void CtaMocker::dump_stradata()
 void CtaMocker::dump_chartdata()
 {
 	rj::Document root(rj::kObjectType);
-	rj::Document::AllocatorType &allocator = root.GetAllocator();
+	rj::Document::AllocatorType& allocator = root.GetAllocator();
 
 	rj::Value klineItem(rj::kObjectType);
-	if(_chart_code.empty())
+	if (_chart_code.empty())
 	{
 		//如果没有设置主K线，就用主K线落地
 		klineItem.AddMember("code", rj::Value(_main_code.c_str(), allocator), allocator);
@@ -252,7 +253,7 @@ void CtaMocker::dump_chartdata()
 			jIndex.AddMember("index_type", cIndex._indexType, allocator);
 
 			rj::Value jLines(rj::kArrayType);
-			for(const auto& v2 : cIndex._lines)
+			for (const auto& v2 : cIndex._lines)
 			{
 				const ChartLine& cLine = v2.second;
 				rj::Value jLine(rj::kObjectType);
@@ -303,13 +304,13 @@ void CtaMocker::dump_chartdata()
 	//	root.AddMember("marks", jMarks, allocator);
 	//}
 
-	if(_persist_data)
+	if (_persist_data)
 	{
 		std::string folder = WtHelper::getOutputDir();
 		folder += _name;
 		folder += "/";
 
-		if(!StdFile::exists(folder.c_str()))
+		if (!StdFile::exists(folder.c_str()))
 			boost::filesystem::create_directories(folder.c_str());
 
 		std::string filename = folder;
@@ -346,7 +347,7 @@ void CtaMocker::dump_outputs()
 
 	std::string filename = folder + "trades.csv";
 	std::string content = "code,time,direct,action,price,qty,tag,fee,barno\n";
-	if(!_trade_logs.str().empty()) content += _trade_logs.str();
+	if (!_trade_logs.str().empty()) content += _trade_logs.str();
 	StdFile::write_file_content(filename.c_str(), (void*)content.c_str(), content.size());
 
 	filename = folder + "closes.csv";
@@ -371,7 +372,7 @@ void CtaMocker::dump_outputs()
 
 	{
 		rj::Document root(rj::kObjectType);
-		rj::Document::AllocatorType &allocator = root.GetAllocator();
+		rj::Document::AllocatorType& allocator = root.GetAllocator();
 		for (auto it = _user_datas.begin(); it != _user_datas.end(); it++)
 		{
 			root.AddMember(rj::Value(it->first.c_str(), allocator), rj::Value(it->second.c_str(), allocator), allocator);
@@ -396,11 +397,11 @@ void CtaMocker::log_signal(const char* stdCode, double target, double price, uin
 
 void CtaMocker::log_trade(const char* stdCode, bool isLong, bool isOpen, uint64_t curTime, double price, double qty, const char* userTag, double fee, uint32_t barNo)
 {
-	_trade_logs << stdCode << "," << curTime << "," << (isLong ? "LONG" : "SHORT") << "," << (isOpen ? "OPEN" : "CLOSE") 
+	_trade_logs << stdCode << "," << curTime << "," << (isLong ? "LONG" : "SHORT") << "," << (isOpen ? "OPEN" : "CLOSE")
 		<< "," << price << "," << qty << "," << userTag << "," << fee << "," << barNo << "\n";
 }
 
-void CtaMocker::log_close(const char* stdCode, bool isLong, uint64_t openTime, double openpx, uint64_t closeTime, double closepx, double qty, double profit, double maxprofit, double maxloss, 
+void CtaMocker::log_close(const char* stdCode, bool isLong, uint64_t openTime, double openpx, uint64_t closeTime, double closepx, double qty, double profit, double maxprofit, double maxloss,
 	double totalprofit /* = 0 */, const char* enterTag /* = "" */, const char* exitTag /* = "" */, uint32_t openBarNo /* = 0 */, uint32_t closeBarNo /* = 0 */)
 {
 	_close_logs << stdCode << "," << (isLong ? "LONG" : "SHORT") << "," << openTime << "," << openpx
@@ -436,7 +437,7 @@ bool CtaMocker::init_cta_factory(WTSVariant* cfg)
 	if (cfgStra)
 	{
 		_strategy = _factory._fact->createStrategy(cfgStra->getCString("name"), cfgStra->getCString("id"));
-		if(_strategy)
+		if (_strategy)
 		{
 			WTSLogger::info("Strategy {}.{} is created,strategy ID: {}", _factory._fact->getName(), _strategy->getName(), _strategy->id());
 		}
@@ -658,15 +659,15 @@ void CtaMocker::handle_replay_done()
 {
 	_in_backtest = false;
 
-	if(_emit_times > 0)
+	if (_emit_times > 0)
 	{
-		WTSLogger::log_dyn("strategy", _name.c_str(), LL_INFO, 
+		WTSLogger::log_dyn("strategy", _name.c_str(), LL_INFO,
 			"Strategy has been scheduled {} times, totally taking {} us, {:.3f} us each time",
-			_emit_times, _total_calc_time, _total_calc_time*1.0 / _emit_times);
+			_emit_times, _total_calc_time, _total_calc_time * 1.0 / _emit_times);
 	}
 	else
 	{
-		WTSLogger::log_dyn("strategy", _name.c_str(), LL_INFO, 
+		WTSLogger::log_dyn("strategy", _name.c_str(), LL_INFO,
 			"Strategy has been scheduled for {} times", _emit_times);
 	}
 
@@ -679,7 +680,7 @@ void CtaMocker::handle_replay_done()
 	if (_has_hook && _hook_valid)
 	{
 		WTSLogger::log_dyn_raw("strategy", _name.c_str(), LL_DEBUG, "Replay done, notify control thread");
-		while(_wait_calc)
+		while (_wait_calc)
 			_cond_calc.notify_all();
 		WTSLogger::log_dyn_raw("strategy", _name.c_str(), LL_DEBUG, "Notify control thread the end done");
 	}
@@ -902,7 +903,7 @@ void CtaMocker::handle_tick(const char* stdCode, WTSTickData* newTick, uint32_t 
 	 *	这里主要是为了应对跨日价格跳空的情况
 	 */
 	double last_px = cur_px;
-	if(pxType != 0)
+	if (pxType != 0)
 	{
 		auto it = _price_map.find(stdCode);
 		if (it != _price_map.end())
@@ -910,8 +911,8 @@ void CtaMocker::handle_tick(const char* stdCode, WTSTickData* newTick, uint32_t 
 		else
 			last_px = cur_px;
 	}
-	
-	
+
+
 	_price_map[stdCode] = cur_px;
 	_ticks[stdCode] = newTick->getTickStruct();
 
@@ -931,7 +932,7 @@ void CtaMocker::handle_tick(const char* stdCode, WTSTickData* newTick, uint32_t 
 	 *	这样做的目的是为了让在模拟tick触发的ontick中下单的信号能够正常处理
 	 *	而不至于在回测的时候成交价偏离太远
 	 */
-	if(pxType != 3)
+	if (pxType != 3)
 		proc_tick(stdCode, last_px, cur_px);
 }
 
@@ -982,7 +983,7 @@ void CtaMocker::update_dyn_profit(const char* stdCode, double price)
 			for (auto pit = pInfo._details.begin(); pit != pInfo._details.end(); pit++)
 			{
 				DetailInfo& dInfo = *pit;
-				dInfo._profit = dInfo._volume*(price - dInfo._price)*commInfo->getVolScale()*(dInfo._long ? 1 : -1);
+				dInfo._profit = dInfo._volume * (price - dInfo._price) * commInfo->getVolScale() * (dInfo._long ? 1 : -1);
 				if (dInfo._profit > 0)
 					dInfo._max_profit = max(dInfo._profit, dInfo._max_profit);
 				else if (dInfo._profit < 0)
@@ -1039,7 +1040,7 @@ void CtaMocker::enable_hook(bool bEnabled /* = true */)
 {
 	_hook_valid = bEnabled;
 
-	WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Calculating hook {}", bEnabled?"enabled":"disabled");
+	WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Calculating hook {}", bEnabled ? "enabled" : "disabled");
 }
 
 void CtaMocker::install_hook()
@@ -1066,10 +1067,10 @@ bool CtaMocker::step_calc()
 		bNotify = true;
 	}
 
-	if(bNotify)
+	if (bNotify)
 		WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Notify calc thread, wait for calc done");
 
-	if(_in_backtest)
+	if (_in_backtest)
 	{
 		_wait_calc = true;
 		StdUniqueLock lock(_mtx_calc);
@@ -1129,7 +1130,7 @@ bool CtaMocker::on_schedule(uint32_t curDate, uint32_t curTime)
 			if (offTime <= sInfo->getCloseTime(true))
 			{
 				_condtions.clear();
-				if(_has_hook && _hook_valid)
+				if (_has_hook && _hook_valid)
 				{
 					WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Waiting for resume notify");
 					StdUniqueLock lock(_mtx_calc);
@@ -1143,7 +1144,7 @@ bool CtaMocker::on_schedule(uint32_t curDate, uint32_t curTime)
 				if (_has_hook && _hook_valid)
 				{
 					WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Calc done, notify control thread");
-					while (_cur_step==1)
+					while (_cur_step == 1)
 						_cond_calc.notify_all();
 
 					WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Waiting for resume notify");
@@ -1153,7 +1154,7 @@ bool CtaMocker::on_schedule(uint32_t curDate, uint32_t curTime)
 					_cur_step = 3;
 				}
 
-				if(_has_hook)
+				if (_has_hook)
 					on_calculate_done(curDate, curTime);
 				emmited = true;
 
@@ -1170,27 +1171,27 @@ bool CtaMocker::on_schedule(uint32_t curDate, uint32_t curTime)
 				 *	如果策略在本轮没有设置指标值，则用上一个数据补齐
 				 *	如果是开始，则用默认值补齐
 				 */
-				//for(auto& v : _chart_indice)
-				//{
-				//	ChartIndex& cIndex = v.second;
-				//	for(auto& line : cIndex._lines)
-				//	{
-				//		ChartLine& cLine = line.second;
-				//		if(cLine._values.size() < _emit_times)
-				//		{
-				//			double lastVal = DBL_MAX;
-				//			if (!cLine._values.empty())
-				//				lastVal = cLine._values.back();
+				 //for(auto& v : _chart_indice)
+				 //{
+				 //	ChartIndex& cIndex = v.second;
+				 //	for(auto& line : cIndex._lines)
+				 //	{
+				 //		ChartLine& cLine = line.second;
+				 //		if(cLine._values.size() < _emit_times)
+				 //		{
+				 //			double lastVal = DBL_MAX;
+				 //			if (!cLine._values.empty())
+				 //				lastVal = cLine._values.back();
 
-				//			cLine._values.emplace_back(lastVal);
-				//		}
-				//	}
-				//}
+				 //			cLine._values.emplace_back(lastVal);
+				 //		}
+				 //	}
+				 //}
 
 				if (_has_hook && _hook_valid)
 				{
 					WTSLogger::log_dyn("strategy", _name.c_str(), LL_DEBUG, "Calc done, notify control thread");
-					while(_cur_step == 3)
+					while (_cur_step == 3)
 						_cond_calc.notify_all();
 				}
 			}
@@ -1273,7 +1274,7 @@ void CtaMocker::on_session_end(uint32_t curTDate)
 		total_profit += pInfo._closeprofit;
 		total_dynprofit += pInfo._dynprofit;
 
-		if(decimal::eq(pInfo._volume, 0.0))
+		if (decimal::eq(pInfo._volume, 0.0))
 			continue;
 
 		_pos_logs << fmt::format("{},{},{},{:.2f},{:.2f}\n", curDate, stdCode,
@@ -1283,7 +1284,7 @@ void CtaMocker::on_session_end(uint32_t curTDate)
 	_fund_logs << fmt::format("{},{:.2f},{:.2f},{:.2f},{:.2f}\n", curDate,
 		_fund_info._total_profit, _fund_info._total_dynprofit,
 		_fund_info._total_profit + _fund_info._total_dynprofit - _fund_info._total_fees, _fund_info._total_fees);
-	
+
 	if (_notifier)
 		_notifier->notifyFund("BT_FUND", curDate, _fund_info._total_profit, _fund_info._total_dynprofit,
 			_fund_info._total_profit + _fund_info._total_dynprofit - _fund_info._total_fees, _fund_info._total_fees);
@@ -1300,7 +1301,7 @@ CondList& CtaMocker::get_cond_entrusts(const char* stdCode)
 void CtaMocker::stra_enter_long(const char* stdCode, double qty, const char* userTag /* = "" */, double limitprice, double stopprice)
 {
 	WTSCommodityInfo* commInfo = _replayer->get_commodity_info(stdCode);
-	if(commInfo == NULL)
+	if (commInfo == NULL)
 	{
 		log_error("Cannot find corresponding commodity info of {}", stdCode);
 		return;
@@ -1310,7 +1311,7 @@ void CtaMocker::stra_enter_long(const char* stdCode, double qty, const char* use
 	if (decimal::eq(limitprice, 0.0) && decimal::eq(stopprice, 0.0))	//如果不是动态下单模式,则直接触发
 	{
 		double curQty = stra_get_position(stdCode);
-		if(decimal::lt(curQty, 0))
+		if (decimal::lt(curQty, 0))
 			append_signal(stdCode, qty, userTag, 0.0, _is_in_schedule ? 0 : 1);
 		else
 			append_signal(stdCode, curQty + qty, userTag, 0.0, _is_in_schedule ? 0 : 1);
@@ -1351,7 +1352,7 @@ void CtaMocker::stra_enter_short(const char* stdCode, double qty, const char* us
 		return;
 	}
 
-	if(!commInfo->canShort())
+	if (!commInfo->canShort())
 	{
 		log_error("Cannot short on {}", stdCode);
 		return;
@@ -1361,7 +1362,7 @@ void CtaMocker::stra_enter_short(const char* stdCode, double qty, const char* us
 	if (decimal::eq(limitprice, 0.0) && decimal::eq(stopprice, 0.0))	//如果不是动态下单模式,则直接触发
 	{
 		double curQty = stra_get_position(stdCode);
-		if(decimal::gt(curQty, 0))
+		if (decimal::gt(curQty, 0))
 			append_signal(stdCode, -qty, userTag, 0.0, _is_in_schedule ? 0 : 1);
 		else
 			append_signal(stdCode, curQty - qty, userTag, 0.0, _is_in_schedule ? 0 : 1);
@@ -1528,12 +1529,12 @@ void CtaMocker::stra_set_position(const char* stdCode, double qty, const char* u
 	if (decimal::eq(total, qty))
 		return;
 
-	if(commInfo->isT1())
+	if (commInfo->isT1())
 	{
 		double valid = stra_get_position(stdCode, true);
 		double frozen = total - valid;
 		//如果是T+1规则，则目标仓位不能小于冻结仓位
-		if(decimal::lt(qty, frozen))
+		if (decimal::lt(qty, frozen))
 		{
 			WTSLogger::log_dyn("strategy", _name.c_str(), LL_ERROR, "New position of {} cannot be set to {} due to {} being frozen", stdCode, qty, frozen);
 			return;
@@ -1612,7 +1613,7 @@ void CtaMocker::do_set_position(const char* stdCode, double qty, double price /*
 
 	double diff = qty - pInfo._volume;
 	bool isBuy = decimal::gt(diff, 0.0);
-	if (decimal::gt(pInfo._volume*diff, 0))//当前持仓和仓位变化方向一致, 增加一条明细, 增加数量即可
+	if (decimal::gt(pInfo._volume * diff, 0))//当前持仓和仓位变化方向一致, 增加一条明细, 增加数量即可
 	{
 		pInfo._volume = qty;
 
@@ -1623,10 +1624,10 @@ void CtaMocker::do_set_position(const char* stdCode, double qty, double price /*
 			pInfo._frozen += diff;
 			log_debug("{} frozen position up to {}", stdCode, pInfo._frozen);
 		}
-		
+
 		if (_slippage != 0)
 		{
-			trdPx += _slippage * commInfo->getPriceTick()*(isBuy ? 1 : -1);
+			trdPx += _slippage * commInfo->getPriceTick() * (isBuy ? 1 : -1);
 		}
 
 		DetailInfo dInfo;
@@ -1651,7 +1652,7 @@ void CtaMocker::do_set_position(const char* stdCode, double qty, double price /*
 	{//持仓方向和仓位变化方向不一致,需要平仓
 		double left = abs(diff);
 		if (_slippage != 0)
-			trdPx += _slippage * commInfo->getPriceTick()*(isBuy ? 1 : -1);
+			trdPx += _slippage * commInfo->getPriceTick() * (isBuy ? 1 : -1);
 
 		pInfo._volume = qty;
 		if (decimal::eq(pInfo._volume, 0))
@@ -1678,7 +1679,7 @@ void CtaMocker::do_set_position(const char* stdCode, double qty, double price /*
 				profit *= -1;
 			pInfo._closeprofit += profit;
 			_total_closeprofit += profit;
-			pInfo._dynprofit = pInfo._dynprofit*dInfo._volume / (dInfo._volume + maxQty);//浮盈也要做等比缩放
+			pInfo._dynprofit = pInfo._dynprofit * dInfo._volume / (dInfo._volume + maxQty);//浮盈也要做等比缩放
 			pInfo._last_exittime = curTm;
 			_fund_info._total_profit += profit;
 
@@ -1687,7 +1688,7 @@ void CtaMocker::do_set_position(const char* stdCode, double qty, double price /*
 			//这里写成交记录
 			log_trade(stdCode, dInfo._long, false, curTm, trdPx, maxQty, userTag, fee, _schedule_times);
 			//这里写平仓记录
-			log_close(stdCode, dInfo._long, dInfo._opentime, dInfo._price, curTm, trdPx, maxQty, profit, maxProf, maxLoss, 
+			log_close(stdCode, dInfo._long, dInfo._opentime, dInfo._price, curTm, trdPx, maxQty, profit, maxProf, maxLoss,
 				_total_closeprofit - _fund_info._total_fees, dInfo._opentag, userTag, dInfo._open_barno, _schedule_times);
 
 			if (left == 0)
@@ -1725,7 +1726,7 @@ void CtaMocker::do_set_position(const char* stdCode, double qty, double price /*
 			dInfo._open_barno = _schedule_times;
 			strcpy(dInfo._opentag, userTag);
 			pInfo._details.emplace_back(dInfo);
- 
+
 			//这里还需要写一笔成交记录
 			double fee = _replayer->calc_fee(stdCode, trdPx, abs(left), 0);
 			_fund_info._total_fees += fee;
@@ -1778,8 +1779,8 @@ WTSKlineSlice* CtaMocker::stra_get_bars(const char* stdCode, const char* period,
 		CodeHelper::CodeInfo cInfo = CodeHelper::extractStdCode(stdCode, _replayer->get_hot_mgr());
 		WTSCommodityInfo* commInfo = _replayer->get_commodity_info(stdCode);
 		std::string realCode = stdCode;
-		if(cInfo.isExright())
-			realCode = realCode.substr(0, realCode.size()-1);
+		if (cInfo.isExright())
+			realCode = realCode.substr(0, realCode.size() - 1);
 		_replayer->sub_tick(id(), realCode.c_str());
 	}
 
@@ -2010,7 +2011,7 @@ double CtaMocker::stra_get_position_avgpx(const char* stdCode)
 	for (auto dit = pInfo._details.begin(); dit != pInfo._details.end(); dit++)
 	{
 		const DetailInfo& dInfo = *dit;
-		amount += dInfo._price*dInfo._volume;
+		amount += dInfo._price * dInfo._volume;
 	}
 
 	return amount / pInfo._volume;
@@ -2110,7 +2111,7 @@ void CtaMocker::add_chart_mark(double price, const char* icon, const char* tag)
 	}
 
 	uint64_t curTime = _replayer->get_date();
-	curTime = curTime*10000 + _replayer->get_min_time();
+	curTime = curTime * 10000 + _replayer->get_min_time();
 
 	_mark_logs << curTime << "," << price << "," << icon << "," << tag << std::endl;
 }

@@ -11,25 +11,14 @@ SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE
 file(GLOB SRCS *.cpp)
 file(GLOB HDRS *.h)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(WtDataStorageAD SHARED ${SRCS} ${HDRS})
 
 SET(LIBS
 	WTSUtils
+	Boost::filesystem
+	Boost::thread
 )
 
-IF (MSVC)
-ELSE (GNUCC)
-	LIST(APPEND LIBS
-		dl
-		pthread
-		boost_filesystem
-		)
-	if(WIN32)
-		LIST(APPEND LIBS iconv)
-	ENDIF()
-ENDIF()
 TARGET_LINK_LIBRARIES(WtDataStorageAD ${LIBS})
 
 IF (MSVC)

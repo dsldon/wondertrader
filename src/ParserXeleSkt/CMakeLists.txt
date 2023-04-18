@@ -13,8 +13,6 @@ SET(SRC
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(ParserXeleSkt SHARED ${SRC})
 
 IF(MSVC)
@@ -24,16 +22,16 @@ IF(MSVC)
 ELSE(GNUCC)
 	IF (WIN32)
 		SET(LIBS
-			boost_thread
+			Boost::thread
 			ws2_32
 		)
 	ELSE(UNIX)
 		SET(LIBS
-			boost_thread
+			Boost::thread
 		)
 	ENDIF()
 ENDIF()
-TARGET_LINK_LIBRARIES(ParserXeleSkt ${LIBS})
+TARGET_LINK_LIBRARIES(ParserXeleSkt PUBLIC ${LIBS})
 
 IF (MSVC)
 ELSE (GNUCC)

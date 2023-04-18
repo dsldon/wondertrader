@@ -8,6 +8,7 @@
 #include "../Share/SpinMutex.hpp"
 
 #include <queue>
+#include <map>
 
 typedef std::shared_ptr<BoostMappingFile> BoostMFPtr;
 
@@ -21,7 +22,7 @@ class WtDataWriter : public IDataWriter
 {
 public:
 	WtDataWriter();
-	~WtDataWriter();	
+	~WtDataWriter();
 
 private:
 	template<typename HeaderType, typename T>
@@ -53,17 +54,17 @@ public:
 	virtual bool writeTransaction(WTSTransData* curTrans) override;
 
 	virtual void transHisData(const char* sid) override;
-	
+
 	virtual bool isSessionProceeded(const char* sid) override;
 
 	virtual WTSTickData* getCurTick(const char* code, const char* exchg = "") override;
 
 private:
-	IBaseDataMgr*		_bd_mgr;
+	IBaseDataMgr* _bd_mgr;
 
 	typedef struct _KBlockPair
 	{
-		RTKlineBlock*	_block;
+		RTKlineBlock* _block;
 		BoostMFPtr		_file;
 		SpinMutex		_mutex;
 		uint64_t		_lasttime;
@@ -80,7 +81,7 @@ private:
 
 	typedef struct _TickBlockPair
 	{
-		RTTickBlock*	_block;
+		RTTickBlock* _block;
 		BoostMFPtr		_file;
 		SpinMutex		_mutex;
 		uint64_t		_lasttime;
@@ -99,7 +100,7 @@ private:
 
 	typedef struct _TransBlockPair
 	{
-		RTTransBlock*	_block;
+		RTTransBlock* _block;
 		BoostMFPtr		_file;
 		SpinMutex		_mutex;
 		uint64_t		_lasttime;
@@ -115,7 +116,7 @@ private:
 
 	typedef struct _OdeDtlBlockPair
 	{
-		RTOrdDtlBlock*	_block;
+		RTOrdDtlBlock* _block;
 		BoostMFPtr		_file;
 		SpinMutex		_mutex;
 		uint64_t		_lasttime;
@@ -131,7 +132,7 @@ private:
 
 	typedef struct _OdeQueBlockPair
 	{
-		RTOrdQueBlock*	_block;
+		RTOrdQueBlock* _block;
 		BoostMFPtr		_file;
 		SpinMutex		_mutex;
 		uint64_t		_lasttime;
@@ -144,7 +145,7 @@ private:
 		}
 	} OrdQueBlockPair;
 	typedef faster_hashmap<LongKey, OrdQueBlockPair*>	OrdQueBlockFilesMap;
-	
+
 
 	KBlockFilesMap	_rt_min1_blocks;
 	KBlockFilesMap	_rt_min5_blocks;
@@ -157,7 +158,7 @@ private:
 	SpinMutex		_lck_tick_cache;
 	faster_hashmap<LongKey, uint32_t> _tick_cache_idx;
 	BoostMFPtr		_tick_cache_file;
-	RTTickCache*	_tick_cache_block;
+	RTTickCache* _tick_cache_block;
 
 	typedef std::function<void()> TaskInfo;
 	std::queue<TaskInfo>	_tasks;
@@ -190,7 +191,7 @@ private:
 	bool			_disable_trans;
 	bool			_disable_ordque;
 	bool			_disable_orddtl;
-	
+
 	std::map<std::string, uint32_t> _proc_date;
 
 private:

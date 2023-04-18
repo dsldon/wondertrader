@@ -23,21 +23,9 @@ SET(LIBS
 	WtDtCore
 	WTSTools
 	WTSUtils
+	Boost::thread
+	Boost::filesystem
 	)
-IF(MSVC)
-ELSE(GNUCC)
-	LIST(APPEND LIBS
-		dl
-		pthread
-		boost_filesystem
-		boost_thread
-		)
-	IF(WIN32)
-		LIST(APPEND LIBS
-			ws2_32 iconv
-		)
-	ENDIF()
-ENDIF()
 
 TARGET_LINK_LIBRARIES(WtDtPorter ${LIBS})
 IF (MSVC)
