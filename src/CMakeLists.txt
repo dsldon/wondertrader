@@ -9,15 +9,14 @@ PROJECT(WonderTrader)
 # INCLUDE(Rapidjson)
 
 find_package(spdlog CONFIG REQUIRED)
-find_package(nanomsg CONFIG REQUIRED)
+find_package(nanomsg CONFIG)
 find_package(RapidJSON CONFIG REQUIRED)
-find_package(Boost "1.82.0" REQUIRED)
+find_package(Boost COMPONENTS filesystem thread)
 
 INCLUDE_DIRECTORIES(${spdlog_INCLUDE_DIRS}
 	${nanomsg_INCLUDE_DIRS}
 	${RapidJSON_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS})
-
 
 #3. 环境判断
 IF (WIN32)
@@ -74,15 +73,17 @@ ADD_SUBDIRECTORY(WTSTools)
 
 #contract Loade through ctp channel
 ADD_SUBDIRECTORY(CTPLoader)
-
-if(0)
 ADD_SUBDIRECTORY(CTPOptLoader)
 ADD_SUBDIRECTORY(MiniLoader)
+
+if (0)
 ADD_SUBDIRECTORY(LoaderRunner)
+endif()
 
 #parser for quote date from ctp channel
 ADD_SUBDIRECTORY(ParserCTP)
 ADD_SUBDIRECTORY(ParserCTPMini)
+if(0)
 ADD_SUBDIRECTORY(ParserCTPOpt)
 ADD_SUBDIRECTORY(ParserFemas)
 ADD_SUBDIRECTORY(ParserXTP)

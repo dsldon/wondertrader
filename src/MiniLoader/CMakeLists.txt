@@ -15,25 +15,14 @@ SET(SRC
 	${PROJECT_SOURCE_DIR}/TraderSpi.h
 )
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
-
-SET(LIBS	
-	boost_filesystem
+SET(LIBS
+	Boost::filesystem
     WTSUtils
-	dl
 )
-
-IF(WIN32)
-LIST(APPEND LIBS iconv)
-ENDIF()
 
 #9. 生成可执行文件
 ADD_LIBRARY(MiniLoader SHARED ${SRC})
-IF (MSVC)
-ELSE (GNUCC)
-	TARGET_LINK_LIBRARIES(MiniLoader ${LIBS})
-ENDIF ()
+TARGET_LINK_LIBRARIES(MiniLoader PUBLIC ${LIBS})
 
 IF (MSVC)
 ELSE (GNUCC)

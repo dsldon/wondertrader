@@ -8,8 +8,16 @@
 #include <rapidjson/document.h>
 namespace rj = rapidjson;
 
+#ifdef GetObject
+// see https://github.com/Tencent/rapidjson/issues/1448
+// a former included windows.h might have defined a macro called GetObject, which affects
+// GetObject defined here. This ensures the macro does not get applied
+#pragma push_macro("GetObject")
+#define RAPIDJSON_WINDOWS_GETOBJECT_WORKAROUND_APPLIED
+#undef GetObject
+#endif
 
-bool json_to_variant(const rj::Value& root, WTSVariant* params)
+bool json_to_variant(const rj::Value &root, WTSVariant *params)
 {
 	if (root.IsObject() && params->type() != WTSVariant::VT_Object)
 		return false;
@@ -19,22 +27,22 @@ bool json_to_variant(const rj::Value& root, WTSVariant* params)
 
 	if (root.IsObject())
 	{
-		for (auto& m : root.GetObj())
+		for (auto &m : root.GetObject())
 		{
-			const char* key = m.name.GetString();
-			const rj::Value& item = m.value;
+			const char *key = m.name.GetString();
+			const rj::Value &item = m.value;
 			switch (item.GetType())
 			{
 			case rj::kObjectType:
 			{
-				WTSVariant* subObj = WTSVariant::createObject();
+				WTSVariant *subObj = WTSVariant::createObject();
 				if (json_to_variant(item, subObj))
 					params->append(key, subObj, false);
 			}
 			break;
 			case rj::kArrayType:
 			{
-				WTSVariant* subAy = WTSVariant::createArray();
+				WTSVariant *subAy = WTSVariant::createArray();
 				if (json_to_variant(item, subAy))
 					params->append(key, subAy, false);
 			}
@@ -58,26 +66,25 @@ bool json_to_variant(const rj::Value& root, WTSVariant* params)
 			case rj::kFalseType:
 				params->append(key, item.GetBool());
 				break;
-
 			}
 		}
 	}
 	else
 	{
-		for (auto& item : root.GetArray())
+		for (auto &item : root.GetArray())
 		{
 			switch (item.GetType())
 			{
 			case rj::kObjectType:
 			{
-				WTSVariant* subObj = WTSVariant::createObject();
+				WTSVariant *subObj = WTSVariant::createObject();
 				if (json_to_variant(item, subObj))
 					params->append(subObj, false);
 			}
 			break;
 			case rj::kArrayType:
 			{
-				WTSVariant* subAy = WTSVariant::createArray();
+				WTSVariant *subAy = WTSVariant::createArray();
 				if (json_to_variant(item, subAy))
 					params->append(subAy, false);
 			}
@@ -107,7 +114,7 @@ bool json_to_variant(const rj::Value& root, WTSVariant* params)
 	return true;
 }
 
-WTSVariant* WTSCfgLoader::load_from_json(const char* content)
+WTSVariant *WTSCfgLoader::load_from_json(const char *content)
 {
 	rj::Document root;
 	root.Parse(content);
@@ -115,7 +122,7 @@ WTSVariant* WTSCfgLoader::load_from_json(const char* content)
 	if (root.HasParseError())
 		return NULL;
 
-	WTSVariant* ret = WTSVariant::createObject();
+	WTSVariant *ret = WTSVariant::createObject();
 	if (!json_to_variant(root, ret))
 	{
 		ret->release();
@@ -126,7 +133,7 @@ WTSVariant* WTSCfgLoader::load_from_json(const char* content)
 }
 
 #include "../WTSUtils/yamlcpp/yaml.h"
-bool yaml_to_variant(const YAML::Node& root, WTSVariant* params)
+bool yaml_to_variant(const YAML::Node &root, WTSVariant *params)
 {
 	if (root.IsNull() && params->type() != WTSVariant::VT_Object)
 		return false;
@@ -135,15 +142,15 @@ bool yaml_to_variant(const YAML::Node& root, WTSVariant* params)
 		return false;
 
 	bool isMap = root.IsMap();
-	for (auto& m : root)
+	for (auto &m : root)
 	{
 		std::string key = isMap ? m.first.as<std::string>() : "";
-		const YAML::Node& item = isMap ? m.second : m;
+		const YAML::Node &item = isMap ? m.second : m;
 		switch (item.Type())
 		{
 		case YAML::NodeType::Map:
 		{
-			WTSVariant* subObj = WTSVariant::createObject();
+			WTSVariant *subObj = WTSVariant::createObject();
 			if (yaml_to_variant(item, subObj))
 			{
 				if (isMap)
@@ -155,7 +162,7 @@ bool yaml_to_variant(const YAML::Node& root, WTSVariant* params)
 		break;
 		case YAML::NodeType::Sequence:
 		{
-			WTSVariant* subAy = WTSVariant::createArray();
+			WTSVariant *subAy = WTSVariant::createArray();
 			if (yaml_to_variant(item, subAy))
 			{
 				if (isMap)
@@ -177,14 +184,14 @@ bool yaml_to_variant(const YAML::Node& root, WTSVariant* params)
 	return true;
 }
 
-WTSVariant* WTSCfgLoader::load_from_yaml(const char* content)
+WTSVariant *WTSCfgLoader::load_from_yaml(const char *content)
 {
 	YAML::Node root = YAML::Load(content);
 
 	if (root.IsNull())
 		return NULL;
 
-	WTSVariant* ret = WTSVariant::createObject();
+	WTSVariant *ret = WTSVariant::createObject();
 	if (!yaml_to_variant(root, ret))
 	{
 		ret->release();
@@ -194,14 +201,14 @@ WTSVariant* WTSCfgLoader::load_from_yaml(const char* content)
 	return ret;
 }
 
-WTSVariant* WTSCfgLoader::load_from_content(const std::string& content, bool isYaml /* = false */)
+WTSVariant *WTSCfgLoader::load_from_content(const std::string &content, bool isYaml /* = false */)
 {
-	//加一个自动检测编码的逻辑
-	bool isUTF8 = EncodingHelper::isUtf8((unsigned char*)content.data(), content.size());
+	// 加一个自动检测编码的逻辑
+	bool isUTF8 = EncodingHelper::isUtf8((unsigned char *)content.data(), content.size());
 
 	std::string buffer;
-	//Linux下得是UTF8
-	//Win下得是GBK
+	// Linux下得是UTF8
+	// Win下得是GBK
 #ifdef _WIN32
 	if (isUTF8)
 		buffer = UTF8toChar(content);
@@ -219,7 +226,7 @@ WTSVariant* WTSCfgLoader::load_from_content(const std::string& content, bool isY
 		return load_from_json(buffer.c_str());
 }
 
-WTSVariant* WTSCfgLoader::load_from_file(const char* filename)
+WTSVariant *WTSCfgLoader::load_from_file(const char *filename)
 {
 	if (!StdFile::exists(filename))
 		return NULL;
@@ -229,12 +236,12 @@ WTSVariant* WTSCfgLoader::load_from_file(const char* filename)
 	if (content.empty())
 		return NULL;
 
-	//加一个自动检测编码的逻辑
-	bool isUTF8 = EncodingHelper::isUtf8((unsigned char*)content.data(), content.size());
+	// 加一个自动检测编码的逻辑
+	bool isUTF8 = EncodingHelper::isUtf8((unsigned char *)content.data(), content.size());
 
-	//By Wesley @ 2022.01.07
-	//Linux下得是UTF8
-	//Win下得是GBK
+	// By Wesley @ 2022.01.07
+	// Linux下得是UTF8
+	// Win下得是GBK
 #ifdef _WIN32
 	if (isUTF8)
 		content = UTF8toChar(content);

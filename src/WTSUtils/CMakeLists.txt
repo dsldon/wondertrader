@@ -14,8 +14,6 @@ ENDIF()
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/libs)
 
-LIST(APPEND INCS "./yamlcpp")
-
 #7. 添加源码
 file(GLOB SRCS "*.cpp" "./zstdlib/*.c" "./yamlcpp/*.cpp" "./lmdb/*.c")
 file(GLOB HDRS "*.h" "./zstdlib/*.h")
@@ -28,3 +26,4 @@ ENDIF()
 
 #8. 编译成动态库，并生成库文件
 add_library(WTSUtils STATIC ${SRCS} ${HDRS})
+target_include_directories(WTSUtils PUBLIC "./yamlcpp")
