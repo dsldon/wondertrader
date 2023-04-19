@@ -13,25 +13,25 @@ SET(SRC
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(TraderMocker SHARED ${SRC})
 
 IF(MSVC)
 	SET(LIBS
 		ws2_32
+		Boost::thread
+		Boost::filesystem
 		)
 ELSE(GNUCC)
 	IF(WIN32)
 		SET(LIBS
-			boost_thread
-			boost_filesystem
+			Boost::thread
+			Boost::filesystem
 			ws2_32
 		)
 	ELSE(UNIX)
 		SET(LIBS
-			boost_thread
-			boost_filesystem
+			Boost::thread
+			Boost::filesystem
 		)
 	ENDIF()
 ENDIF()

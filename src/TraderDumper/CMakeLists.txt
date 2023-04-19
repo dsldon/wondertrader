@@ -15,28 +15,14 @@ IF(MSVC)
 	list (APPEND SRCS ../Common/mdump.cpp)
 ENDIF()
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(TraderDumper SHARED ${SRCS} ${HDRS})
 
 SET(LIBS
 	WTSTools
 	WTSUtils
+	Boost::filesystem
+	Boost::thread
 	)
-IF(MSVC)
-ELSE(GNUCC)
-	LIST(APPEND LIBS
-		dl
-		pthread
-		boost_filesystem
-		boost_thread
-		)
-	IF(WIN32)
-		LIST(APPEND LIBS
-			ws2_32 iconv
-		)
-	ENDIF()
-ENDIF()
 
 TARGET_LINK_LIBRARIES(TraderDumper ${LIBS})
 IF (MSVC)

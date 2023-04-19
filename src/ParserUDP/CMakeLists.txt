@@ -13,8 +13,6 @@ SET(SRC
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(ParserUDP SHARED ${SRC})
 
 IF(MSVC)
@@ -24,12 +22,12 @@ IF(MSVC)
 ELSE(GNUCC)
 	IF (WIN32)
 		SET(LIBS
-			boost_thread
+			Boost::filesystem
 			ws2_32
 		)
 	ELSE(UNIX)
 		SET(LIBS
-			boost_thread
+			Boost::filesystem
 		)
 	ENDIF()
 ENDIF()

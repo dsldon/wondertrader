@@ -15,25 +15,9 @@ IF(MSVC)
 	list (APPEND SRCS ../Common/mdump.cpp)
 ENDIF()
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(WtPorter SHARED ${SRCS} ${HDRS})
 
-SET(LIBS WtCore WTSTools WTSUtils)
-
-IF (MSVC)
-	LIST(APPEND LIBS ws2_32)
-ELSE(GNUCC)
-	LIST(APPEND LIBS
-		dl
-		pthread
-		boost_filesystem
-		boost_thread)
-	IF(WIN32)
-		LIST(APPEND LIBS
-			ws2_32 iconv)
-	ENDIF()
-ENDIF()
+SET(LIBS WtCore WTSTools WTSUtils Boost::filesystem Boost::thread)
 
 TARGET_LINK_LIBRARIES(WtPorter ${LIBS})
 IF (MSVC)

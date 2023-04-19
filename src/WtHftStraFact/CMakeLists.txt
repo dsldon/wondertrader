@@ -11,13 +11,10 @@ file(GLOB HDRS "*.h")
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(WtHftStraFact SHARED ${SRCS} ${HDRS})
 
 SET(LIBS
-	boost_filesystem
-	dl
+	Boost::filesystem
 )
 
 IF (WIN32)

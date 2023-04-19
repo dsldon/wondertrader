@@ -14,22 +14,9 @@ file(GLOB SRCS *.cpp)
 SET(LIBS
 	WTSTools
 	WTSUtils
+	Boost::filesystem
+	Boost::thread
 	)
-    
-IF (MSVC)
-ELSE(GNUCC)
-	LIST(APPEND LIBS
-		dl
-        pthread
-		boost_filesystem)
-    IF(WIN32)
-		LIST(APPEND LIBS
-			iconv)
-	ENDIF()
-ENDIF()
-
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 
 ADD_EXECUTABLE(TestParser ${SRCS})
 TARGET_LINK_LIBRARIES(TestParser ${LIBS})

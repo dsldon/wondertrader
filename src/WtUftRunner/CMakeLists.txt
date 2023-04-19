@@ -15,28 +15,13 @@ IF(MSVC)
 	list (APPEND SRCS ../Common/mdump.cpp)
 ENDIF()
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
-
 SET(LIBS
 	WtUftCore
 	WTSTools
     WTSUtils
+	Boost::filesystem
+	Boost::thread
 	)
-
-IF (MSVC)
-	LIST(APPEND LIBS ws2_32)
-ELSE(GNUCC)
-	LIST(APPEND LIBS
-		dl
-		pthread
-		boost_filesystem
-		boost_thread)
-	IF(WIN32)
-		LIST(APPEND LIBS
-			ws2_32 iconv)
-	ENDIF()
-ENDIF()
 
 ADD_EXECUTABLE(WtUftRunner ${SRCS} ${HDRS})
 TARGET_LINK_LIBRARIES(WtUftRunner ${LIBS})

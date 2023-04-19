@@ -13,19 +13,12 @@ file(GLOB SRCS *.cpp ./gtest/*.cc)
 
 SET(LIBS
     WTSTools
-	WTSUtils)
-IF (MSVC)
-ELSE(GNUCC)
-    LIST(APPEND LIBS pthread boost_filesystem)
-	IF(WIN32)
-		LIST(APPEND LIBS iconv)
-	ENDIF()
-ENDIF()
+	WTSUtils
+	Boost::filesystem
+	Boost::thread
+)
 
 LIST(APPEND INCS "./gtest")
-
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 
 ADD_EXECUTABLE(TestUnits ${SRCS})
 TARGET_LINK_LIBRARIES(TestUnits ${LIBS})

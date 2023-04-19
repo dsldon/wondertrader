@@ -26,6 +26,16 @@ namespace rj = rapidjson;
 
 #include "../WTSTools/WTSLogger.h"
 
+#ifdef GetObject
+// see https://github.com/Tencent/rapidjson/issues/1448
+// a former included windows.h might have defined a macro called GetObject, which affects
+// GetObject defined here. This ensures the macro does not get applied
+#pragma push_macro("GetObject")
+#define RAPIDJSON_WINDOWS_GETOBJECT_WORKAROUND_APPLIED
+#undef GetObject
+#endif
+
+
 const char* CMP_ALG_NAMES[] =
 {
 	"£½",
