@@ -1,6 +1,6 @@
 
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 PROJECT(WtTester LANGUAGES CXX)
@@ -8,25 +8,13 @@ SET(CMAKE_CXX_STANDARD 11)
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin/WtBtRunner)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
-
 SET(LIBS
 	WtBtCore
 	WTSTools
 	WTSUtils
+	Boost::thread
+	Boost::filesystem
 )
-
-IF(MSVC)
-ELSE(GNUCC)
-	LIST(APPEND LIBS
-		boost_filesystem
-		pthread
-		dl)
-	if(WIN32)
-		LIST(APPEND LIBS iconv)
-	ENDIF()
-ENDIF()
 
 #添加源码
 file(GLOB SRCS *.cpp)

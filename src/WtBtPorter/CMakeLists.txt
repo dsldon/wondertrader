@@ -1,5 +1,5 @@
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 PROJECT(WtBtPorter LANGUAGES CXX)
@@ -15,31 +15,14 @@ IF(MSVC)
 	list (APPEND SRCS ../Common/mdump.cpp)
 ENDIF()
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
+SET(LIBS
+	WtBtCore
+	WTSTools
+	WTSUtils
+	Boost::thread
+	Boost::filesystem
+)
 ADD_LIBRARY(WtBtPorter SHARED ${SRCS} ${HDRS})
-
-IF(MSVC)
-	SET(LIBS
-		WtBtCore
-		WTSTools
-		WTSUtils
-	)
-ELSE(GNUCC)
-	SET(LIBS
-		WtBtCore
-		WTSTools
-		WTSUtils
-
-		dl
-		pthread
-		boost_filesystem
-	)
-	if(WIN32)
-		LIST(APPEND LIBS iconv)
-	ENDIF()
-ENDIF()
-
 
 TARGET_LINK_LIBRARIES(WtBtPorter ${LIBS})
 IF (WIN32)

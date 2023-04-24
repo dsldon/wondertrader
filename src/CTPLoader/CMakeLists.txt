@@ -1,6 +1,6 @@
 
 #1. 确定CMake的最低版本需求
-cmake_minimum_required(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 project(CTPLoader LANGUAGES CXX)
@@ -15,25 +15,14 @@ SET(SRC
 	${PROJECT_SOURCE_DIR}/TraderSpi.h
 )
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
-
 SET(LIBS
-	boost_filesystem
+	Boost::filesystem
     WTSUtils
-	dl
 )
-
-IF(WIN32)
-LIST(APPEND LIBS iconv)
-ENDIF()
 
 #9. 生成可执行文件
 ADD_LIBRARY(CTPLoader SHARED ${SRC})
-IF (MSVC)
-ELSE (GNUCC)
-	TARGET_LINK_LIBRARIES(CTPLoader ${LIBS})
-ENDIF ()
+TARGET_LINK_LIBRARIES(CTPLoader PUBLIC ${LIBS})
 
 IF (MSVC)
 ELSE (GNUCC)

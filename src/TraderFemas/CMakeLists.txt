@@ -1,5 +1,5 @@
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 PROJECT(TraderFemas LANGUAGES CXX)
@@ -12,24 +12,23 @@ SET(SRC
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(TraderFemas SHARED ${SRC})
 
 IF(MSVC)
 	SET(LIBS
 		ws2_32
+		Boost::filesystem
 		)
 ELSE(GNUCC)
 	IF (WIN32)
 		SET(LIBS
-			boost_filesystem
+			Boost::filesystem
 			dl
 			ws2_32
 		)
 	ELSE(UNIX)
 		SET(LIBS
-			boost_filesystem
+			Boost::filesystem
 			dl
 		)
 	ENDIF()

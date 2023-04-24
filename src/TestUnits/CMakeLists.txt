@@ -1,6 +1,6 @@
 
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 PROJECT(TestUnits LANGUAGES CXX)
@@ -13,19 +13,12 @@ file(GLOB SRCS *.cpp ./gtest/*.cc)
 
 SET(LIBS
     WTSTools
-	WTSUtils)
-IF (MSVC)
-ELSE(GNUCC)
-    LIST(APPEND LIBS pthread boost_filesystem)
-	IF(WIN32)
-		LIST(APPEND LIBS iconv)
-	ENDIF()
-ENDIF()
+	WTSUtils
+	Boost::filesystem
+	Boost::thread
+)
 
 LIST(APPEND INCS "./gtest")
-
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 
 ADD_EXECUTABLE(TestUnits ${SRCS})
 TARGET_LINK_LIBRARIES(TestUnits ${LIBS})

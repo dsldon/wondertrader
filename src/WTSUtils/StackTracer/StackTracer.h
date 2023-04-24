@@ -18,6 +18,7 @@
 #endif // _WINDOWS
 
 #include <functional>
+#include <cstdlib>
 
 typedef std::function<void(const char*)> TracerLogCallback;
 

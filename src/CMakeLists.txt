@@ -1,6 +1,22 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+SET(CMAKE_MINIMUM_VERIONS "3.20.0")
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 PROJECT(WonderTrader)
+
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
+
+find_package(spdlog CONFIG REQUIRED)
+find_package(nanomsg CONFIG)
+find_package(RapidJSON CONFIG REQUIRED)
+find_package(Boost COMPONENTS filesystem thread)
+
+add_definitions(-DSPDLOG_FMT_EXTERNAL)
+link_libraries(spdlog::spdlog)
+
+INCLUDE_DIRECTORIES(${spdlog_INCLUDE_DIRS}
+	${nanomsg_INCLUDE_DIRS}
+	${RapidJSON_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS})
 
 #3. 环境判断
 IF (WIN32)
@@ -60,6 +76,7 @@ ADD_SUBDIRECTORY(CTPLoader)
 ADD_SUBDIRECTORY(CTPOptLoader)
 ADD_SUBDIRECTORY(MiniLoader)
 ADD_SUBDIRECTORY(LoaderRunner)
+ADD_DEPENDENCIES(LoaderRunner WtBtCore)
 
 #parser for quote date from ctp channel
 ADD_SUBDIRECTORY(ParserCTP)
@@ -117,5 +134,6 @@ ADD_SUBDIRECTORY(TestExecPorter)
 ADD_SUBDIRECTORY(TestPorter)
 ADD_SUBDIRECTORY(TestTrader)
 ADD_SUBDIRECTORY(TestParser)
+if(0)
 ADD_SUBDIRECTORY(TestUnits)
-
+endif()

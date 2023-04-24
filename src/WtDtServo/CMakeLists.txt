@@ -1,6 +1,6 @@
 
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 PROJECT(WtDtServo LANGUAGES CXX)
@@ -16,24 +16,13 @@ IF(MSVC)
     list (APPEND SRCS ../Common/mdump.cpp)
 ENDIF()
 
-INCLUDE_DIRECTORIES(${INCS})
-LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(WtDtServo SHARED ${SRCS} ${HDRS})
 
 SET(LIBS
     WTSTools
     WTSUtils
+    Boost::filesystem
 )
-IF (MSVC)
-ELSE (GNUCC)
-    LIST(APPEND LIBS
-        dl
-        boost_filesystem
-        )
-    IF(WIN32)
-        LIST(APPEND LIBS iconv)
-    ENDIF()
-ENDIF()
 
 TARGET_LINK_LIBRARIES(WtDtServo ${LIBS})
 IF (MSVC)

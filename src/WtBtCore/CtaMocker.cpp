@@ -13,6 +13,7 @@
 
 #include <exception>
 #include <boost/filesystem.hpp>
+#include <fstream>
 
 #include "../Includes/WTSContractInfo.hpp"
 #include "../Includes/WTSSessionInfo.hpp"

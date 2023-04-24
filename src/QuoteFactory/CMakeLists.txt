@@ -1,5 +1,5 @@
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_MINIMUM_VERIONS})
 
 #2. 确定工程名
 PROJECT(QuoteFactory LANGUAGES CXX)
@@ -20,7 +20,10 @@ LINK_DIRECTORIES(${LNKS})
 SET(LIBS
 	WTSTools
 	WTSUtils
-	WtDtCore)
+	WtDtCore
+	Boost::filesystem
+	Boost::thread
+)
 
 IF(MSVC)
 	LIST(APPEND LIBS ws2_32)
