@@ -18,9 +18,8 @@ SET(LIBS
 	Boost::thread
 )
 
-LIST(APPEND INCS "./gtest")
-
 ADD_EXECUTABLE(TestUnits ${SRCS})
+TARGET_INCLUDE_DIRECTORIES(TestUnits PUBLIC "./gtest")
 TARGET_LINK_LIBRARIES(TestUnits ${LIBS})
 
 IF (MSVC)
